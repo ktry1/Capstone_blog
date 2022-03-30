@@ -1,5 +1,5 @@
 import smtplib
-
+import os
 import werkzeug
 from flask import Flask, render_template, redirect, url_for, flash, request
 from flask_bootstrap import Bootstrap
@@ -25,7 +25,7 @@ app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 ckeditor = CKEditor(app)
 Bootstrap(app)
 
@@ -122,7 +122,10 @@ def register():
         if not User.query.filter_by(username=request.form["username"]).first()==None:
             flash("This username already exists")
             return render_template("register.html", form=form)
-        new_user=User(email=request.form["email"], username=request.form["username"], password=werkzeug.security.generate_password_hash(request.form["password"], method='pbkdf2:sha256', salt_length=8))
+        new_user=User(email=request.form["email"], username=request.form["username"],
+                      password=werkzeug.security.generate_password_hash(request.form["password"],
+                                                                        method=os.environ.get("METHOD_HASH"),
+                                                                        salt_length=os.environ.get("SALT_LENGTH")))
         db.session.add(new_user)
         db.session.commit()
         login_user(new_user)
@@ -185,20 +188,12 @@ def contact():
         connection.starttls()
         connection.login(user="kirilltroyak@yahoo.com", password="znqsgrijthlhypzm")
         message=f"Name: {request.form['name']}\nEmail: {request.form['email']}\nPhone number: {request.form['phone_number']}\nMessage: {request.form['message']}"
-        connection.sendmail(from_addr="kirilltroyak@yahoo.com", to_addrs="kirilltroyak10@gmail.com", msg=f"Subject:Message from user!\n\n{message}")
+        connection.sendmail(from_addr=os.environ.get("FROM_ADRESS"), to_addrs=os.environ.get("TO_ADRESS"), msg=f"Subject:Message from user!\n\n{message}")
         flash("Email sent successfully")
         return render_template("contact.html",form=form)
 
     return render_template("contact.html", form=form)
 
-def admin_only(func):
-    def wrapper(*args, **kwargs):
-        if int(current_user.get_id())==1:
-            return func(*args, **kwargs)
-        else:
-            return "Fuck you",403
-    wrapper.__name__ = func.__name__
-    return wrapper
 
 @app.route("/new-post", methods=["POST","GET"])
 @login_required
@@ -217,7 +212,7 @@ def add_new_post():
         db.session.add(new_post)
         db.session.commit()
         return redirect(url_for("get_all_posts"))
-    return render_template("make-post.html", form=form)
+    return render_template("make-post.html", form=form, edit=True)
 
 @app.route("/delete_comment/<comment_id>")
 @login_required
@@ -252,7 +247,7 @@ def edit_post(post_id):
             db.session.commit()
             return redirect(url_for("show_post", post_id=post.id))
 
-        return render_template("make-post.html", form=edit_form)
+        return render_template("make-post.html", form=edit_form,edit=True)
 
 
 @app.route("/delete/<int:post_id>")
