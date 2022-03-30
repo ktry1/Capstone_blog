@@ -125,7 +125,7 @@ def register():
         new_user=User(email=request.form["email"], username=request.form["username"],
                       password=werkzeug.security.generate_password_hash(request.form["password"],
                                                                         method=os.environ.get("METHOD_HASH"),
-                                                                        salt_length=os.environ.get("SALT_LENGTH")))
+                                                                        salt_length=int(os.environ.get("SALT_LENGTH"))))
         db.session.add(new_user)
         db.session.commit()
         login_user(new_user)
