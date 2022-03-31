@@ -70,13 +70,13 @@ db.create_all()
 
 ##CONFIGURE TABLES
 class User(db.Model, UserMixin):
-    __tablename__= "Users"
+    __tablename__= "users"
     id = db.Column(db.Integer, primary_key=True)
     email=db.Column(db.String(250), nullable=False)
     username=db.Column(db.String(250), nullable=False)
     password=db.Column(db.String(250), nullable=False)
-    posts=db.relationship("BlogPost", back_populates="author", cascade="all,delete")
-    comments = db.relationship("Comment", cascade="all,delete", back_populates="comment_author")
+    posts=db.relationship("blog_posts", back_populates="author", cascade="all,delete")
+    comments = db.relationship("comments", cascade="all,delete", back_populates="comment_author")
 
 class BlogPost(db.Model):
     __tablename__ = "blog_posts"
@@ -87,17 +87,17 @@ class BlogPost(db.Model):
     date = db.Column(db.String(250), nullable=False)
     body = db.Column(db.Text, nullable=False)
     img_url = db.Column(db.String(250), nullable=False)
-    author=db.relationship("User", back_populates="posts")
+    author=db.relationship("users", back_populates="posts")
     author_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
-    post_comments=db.relationship("Comment",back_populates="commented_post", cascade="all,delete")
+    post_comments=db.relationship("comments",back_populates="commented_post", cascade="all,delete")
 
 class Comment(db.Model):
     __tablename__ = "comments"
     id=db.Column(db.Integer, primary_key=True)
     author_id = db.Column(db.Integer, db.ForeignKey("Users.id"))
-    comment_author = relationship("User", back_populates="comments")
+    comment_author = relationship("users", back_populates="comments")
     comment=db.Column(db.String(250), nullable=False)
-    commented_post=db.relationship("BlogPost", back_populates="post_comments")
+    commented_post=db.relationship("blog_posts", back_populates="post_comments")
     parent_post_id=db.Column(db.Integer, db.ForeignKey("blog_posts.id"))
 
 
