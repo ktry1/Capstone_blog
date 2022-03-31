@@ -186,7 +186,7 @@ def contact():
     if form.validate_on_submit():
         connection=smtplib.SMTP(host="smtp.mail.yahoo.com", port=587)
         connection.starttls()
-        connection.login(user="kirilltroyak@yahoo.com", password="znqsgrijthlhypzm")
+        connection.login(user=os.environ.get("FROM_ADRESS"), password=os.environ.get("FROM_PASSWORD"))
         message=f"Name: {request.form['name']}\nEmail: {request.form['email']}\nPhone number: {request.form['phone_number']}\nMessage: {request.form['message']}"
         connection.sendmail(from_addr=os.environ.get("FROM_ADRESS"), to_addrs=os.environ.get("TO_ADRESS"), msg=f"Subject:Message from user!\n\n{message}")
         flash("Email sent successfully")
