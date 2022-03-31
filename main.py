@@ -188,7 +188,7 @@ def contact():
         connection.starttls()
         connection.login(user=os.environ.get("FROM_ADRESS"), password=os.environ.get("FROM_PASSWORD"))
         message=f"Name: {request.form['name']}\nEmail: {request.form['email']}\nPhone number: {request.form['phone_number']}\nMessage: {request.form['message']}"
-        connection.sendmail(from_addr=os.environ.get("FROM_ADRESS"), to_addrs=os.environ.get("TO_ADRESS"), msg=f"Subject:Message from user!\n\n{message}")
+        connection.sendmail(from_addr=os.environ.get("FROM_ADRESS"), to_addrs=os.environ.get("TO_ADRESS"), msg=f"Subject:Message from user!\n\n{message.encode('utf-8')}")
         flash("Email sent successfully")
         return render_template("contact.html",form=form)
 
