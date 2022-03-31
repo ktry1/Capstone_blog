@@ -66,7 +66,7 @@ url=os.environ.get('DATABASE_URL').replace("://", "ql://", 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-db.create_all()
+
 
 
 ##CONFIGURE TABLES
@@ -100,7 +100,7 @@ class Comment(db.Model):
     commented_post=db.relationship("BlogPost", back_populates="post_comments")
     parent_post_id=db.Column(db.Integer, db.ForeignKey("blog_posts.id"))
 
-
+db.create_all()
 
 @login_manager.user_loader
 def load_user(user_id):
